@@ -26,7 +26,7 @@ proxy-groups:
   - name: 节点选择
     type: select
     proxies:
-      - WARP        #给机场套warp之后的节点     
+      # - WARP        #给机场套warp之后的节点     
       - 机场负载均衡  #机场节点的负载均衡，下同
       - 机场自动选择    
       - 机场手动选择
