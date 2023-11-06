@@ -23,11 +23,7 @@ proxy-providers:
 
 proxy-groups:
   # 这个名字为前置节点的策略组可以选择是用自建节点还是机场节点作为前置节点
-  - name: Proxy
-    type: select
-    use:
-      - jichang-dingyue1
-      - jichang-dingyue2-warp
+  
   - name: 节点选择
     type: select
     proxies:
@@ -45,6 +41,7 @@ proxy-groups:
     type: load-balance #负载均衡
     use:
       - jichang-dingyue1
+      - jichang-dingyue2-warp
     url: 'http://www.gstatic.com/generate_204'
     interval: 300
     #lazy: true
