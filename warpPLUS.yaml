@@ -1,3 +1,17 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  nameserver:
+    - 119.29.29.29
+    - 223.5.5.5
+  fake-ip-range: 198.18.0.1/16
+
 proxy-providers:
   jichang-dingyue1:   #名称，默认即可
     type: http
