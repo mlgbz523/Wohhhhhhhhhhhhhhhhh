@@ -9,7 +9,7 @@ proxy-providers:
       interval: 600
       url: https://www.gstatic.com/generate_204
 
-  jichang-dingyue2: WARP  #名称，默认即可
+  jichang-dingyue2-warp: #名称，默认即可
       type: http
       url: "https://neko-warp.nloli.xyz/neko_warp.yaml"  ###此处必填，url里面填入你的机场订阅链接，一般订阅链接加密了，需要转换为直链(https://acl4ssr-sub.github.io/)
       interval: 3600
@@ -26,8 +26,8 @@ proxy-groups:
   - name: Proxy
     type: select
     use:
-      - provider1
-      - provider2
+      - jichang-dingyue1
+      - jichang-dingyue2-warp
   - name: 节点选择
     type: select
     proxies:
