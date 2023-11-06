@@ -22,7 +22,12 @@ proxy-providers:
 
 proxy-groups:
   # 这个名字为前置节点的策略组可以选择是用自建节点还是机场节点作为前置节点
-
+   proxy-groups: 
+  - name: Proxy
+    type: select
+    use:
+      - provider1
+      - provider2
   - name: 节点选择
     type: select
     proxies:
