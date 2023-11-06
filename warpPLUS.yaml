@@ -1,17 +1,29 @@
 port: 7890
-socks-port: 7891
 allow-lan: true
 mode: rule
 log-level: info
-external-controller: 127.0.0.1:9090
+unified-delay: true
+global-client-fingerprint: chrome
 dns:
   enable: true
-  listen: 0.0.0.0:53
-  nameserver:
-    - 119.29.29.29
-    - 223.5.5.5
+  listen: :53
+  ipv6: true
+  enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-
+  default-nameserver:
+  - 223.5.5.5
+  - 8.8.8.8
+  nameserver:
+  - https://dns.alidns.com/dns-query
+  - https://doh.pub/dns-query
+  fallback:
+  - https://1.0.0.1/dns-query
+  - tls://dns.google
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+    - 240.0.0.0/4
 proxy-providers:
   jichang-dingyue1:   #名称，默认即可
     type: http
@@ -40,22 +52,26 @@ proxy-groups:
   
   - name: 节点选择
     type: select
-    proxies:
-      # - WARP        #给机场套warp之后的节点     
-      - 机场负载均衡  #机场节点的负载均衡，下同
-      - 机场自动选择    
-      - 机场手动选择
+    use:
+      - ji-chang-warp  #proxy-providers中的名字，默认即可
+      - ji-chang-dingyue1
+    # proxies:
+    #   # - WARP        #给机场套warp之后的节点     
+    #   - 机场负载均衡  #机场节点的负载均衡，下同
+    #   - 机场自动选择    
+    #   - 机场手动选择
+
   - name: 前置节点
     type: select
     proxies:  
       - 机场负载均衡  #机场节点的负载均衡，下同
       - 机场自动选择    
       - 机场手动选择
+
   - name: 机场负载均衡
     type: load-balance #负载均衡
     use:
       - jichang-dingyue1
-      - jichang-dingyue2-warp
     url: 'http://www.gstatic.com/generate_204'
     interval: 300
     #lazy: true
