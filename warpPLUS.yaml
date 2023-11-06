@@ -9,16 +9,16 @@ proxy-providers:
       interval: 600
       url: https://www.gstatic.com/generate_204
 
-jichang-dingyue2:   #名称，默认即可
-    type: http
-    url: "https://neko-warp.nloli.xyz/neko_warp.yaml"  ###此处必填，url里面填入你的机场订阅链接，一般订阅链接加密了，需要转换为直链(https://acl4ssr-sub.github.io/)
-    interval: 3600
-    path:  ./warpPLUS.yaml  #机场订阅文件下载后的文件名及文件地址，默认即可
-    health-check:
-      enable: true
-      interval: 1000
-      url: https://cp.cloudflare.com/generate_204
-      dialer-proxy: "前置节点"
+  jichang-dingyue2: WARP  #名称，默认即可
+      type: http
+      url: "https://neko-warp.nloli.xyz/neko_warp.yaml"  ###此处必填，url里面填入你的机场订阅链接，一般订阅链接加密了，需要转换为直链(https://acl4ssr-sub.github.io/)
+      interval: 3600
+      path:  ./warpPLUS.yaml  #机场订阅文件下载后的文件名及文件地址，默认即可
+      health-check:
+        enable: true
+        interval: 1000
+        url: https://cp.cloudflare.com/generate_204
+        dialer-proxy: "前置节点"
 
 proxy-groups:
   # 这个名字为前置节点的策略组可以选择是用自建节点还是机场节点作为前置节点
