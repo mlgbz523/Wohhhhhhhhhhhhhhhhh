@@ -6,19 +6,21 @@ unified-delay: true
 global-client-fingerprint: chrome
 dns:
   enable: true
-  listen: :53
-  ipv6: true
+  listen: 127.0.0.1:5335
+  ipv6: false
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   default-nameserver:
   - 223.5.5.5
   - 8.8.8.8
+  - 1.1.1.1
   nameserver:
   - https://dns.alidns.com/dns-query
   - https://doh.pub/dns-query
   fallback:
   - https://1.0.0.1/dns-query
   - tls://dns.google
+
   fallback-filter:
     geoip: true
     geoip-code: CN
@@ -27,23 +29,25 @@ dns:
 proxy-providers:
   ChromeGo:   #名称，默认即可
     type: http
-    url: "https://mareep.netlify.app/sub/merged_proxies_new.yaml" #
-    interval: 60
+    url: https://mareep.netlify.app/sub/merged_proxies_new.yaml #
+    interval: 600
     path:  ./ChromeGo.yaml  #机场订阅文件下载后的文件名及文件地址，默认即可
     health-check:
       enable: true
-      interval: 60
+      interval: 6000
       url: https://www.gstatic.com/generate_204
     # dialer-proxy: "前置节点"
 
   warpss: #名称，默认即可
+    # type: file
     type: http
     url: "https://neko-warp.nloli.xyz/neko_warp.yaml"  #机场订阅地址
-    interval: 60
-    path:  ./warp.yaml  #机场订阅文件下载后的文件名及文件地址，默认即可
+    # url: https://neko-warp.nloli.xyz
+    interval: 600
+    path:  ./nekowarp.yaml
     health-check:
       enable: true
-      interval: 60
+      interval: 600
       url: http://www.gstatic.com/generate_204
     dialer-proxy: "前置节点"
 
@@ -53,6 +57,7 @@ proxy-groups:
     type: select
     proxies:  
       - warp负载均衡  
+      - warp自动选择
     # proxies:
     #   # - WARP        #给机场套warp之后的节点     
     #   - 机场负载均衡  #机场节点的负载均衡，下同
@@ -63,37 +68,50 @@ proxy-groups:
     type: select
     proxies:  
       - 机场负载均衡  
-      # - 机场自动选择    
+      - 机场自动选择    
       # - 机场手动选择
 
   - name: warp负载均衡
     type: load-balance #负载均衡
+    # type: url-test
     use:
       - warpss
-    url: 'http://www.gstatic.com/generate_204'
-    interval:  60
+    url: http://www.gstatic.com/generate_204
+
+    interval:  600
+    # tolerance: 200
     #lazy: true
-    #disable-udp: true
+    # disable-udp: true
     strategy:  consistent-hashing
 
   - name: 机场负载均衡
     type: load-balance #负载均衡
+    # type: url-test #选出延迟最低的机场节点
     use:
       - ChromeGo
     url: 'http://www.gstatic.com/generate_204'
-    interval: 300
+    interval: 600
+    # tolerance: 60
     #lazy: true
     #disable-udp: true
-    strategy:  consistent-hashing
-    # strategy: round-robin #作为前置节点⽤这个⽐较好
+    # strategy:  consistent-hashing
+    strategy: round-robin #作为前置节点⽤这个⽐较好
 
-  # - name: 机场自动选择
-  #   type: url-test #选出延迟最低的机场节点
-  #   use:
-  #     -     #proxy-providers中的名字，默认即可
-  #   url: "http://www.gstatic.com/generate_204"
-  #   interval: 300
-  #   tolerance: 50
+  - name: 机场自动选择
+    type: url-test #选出延迟最低的机场节点
+    use:
+      - ChromeGo  #proxy-providers中的名字，默认即可
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+
+  - name: warp自动选择
+    type: url-test #选出延迟最低的机场节点
+    use:
+      - warpss  #proxy-providers中的名字，默认即可
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
 
   # - name: 机场手动选择
   #   type: select #手动选择
@@ -102,10 +120,10 @@ proxy-groups:
 
 rules:
     # 国内简单分流
-    - GEOSITE,google,Warp节点均衡负载
+    - GEOSITE,google,Warp自动选择
     - GEOSITE,cn,DIRECT
     - GEOIP,CN,DIRECT
     - GEOIP,LAN,DIRECT
     - GEOIP,lan,DIRECT,no-resolve
     # 默认规则
-    - MATCH,Warp节点均衡负载
+    - MATCH,Warp自动选择,机场自动选择
