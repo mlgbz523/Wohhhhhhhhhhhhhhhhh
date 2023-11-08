@@ -1,0 +1,49 @@
+port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+unified-delay: true
+global-client-fingerprint: chrome
+
+proxies:
+- name: "WARP"
+  type: wireguard
+  server: engage.cloudflareclient.com
+  port: 2408
+  ip: 172.16.0.2/32
+  ipv6: 2606:4700:110:873c:3441:6949:5f43:8ed7/128 # 自行替换
+  private-key: CDJqpZUGmvEuXQ7DViYSqcpMdC5WggR9wXAos9U9H1M= # 自行替换
+  public-key: bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=   # 自行替换
+  udp: true
+  # reserved: "abba"           # 自行替换
+  mtu: 1280
+  dialer-proxy: "dns"
+  remote-dns-resolve: true
+  dns:
+    - https://dns.cloudflare.com/dns-query
+  
+
+  proxy-groups:
+
+  - name: warp节点
+    type: select
+    proxies:  
+      - warp负载均衡 
+
+- name: warp负载均衡
+  type: load-balance #负载均衡
+  proxies:
+    - WARP
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+  strategy: round-robin
+
+rules:
+    # 国内简单分流
+    - GEOSITE,google,warp负载均衡
+    - GEOSITE,cn,DIRECT
+    - GEOIP,CN,DIRECT
+    - GEOIP,LAN,DIRECT
+    - GEOIP,lan,DIRECT,no-resolve
+    # 默认规则
+    - MATCH,warp负载均衡
