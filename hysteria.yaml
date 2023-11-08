@@ -1,0 +1,58 @@
+mixed-port: 7890
+allow-lan: true
+bind-address: '*'
+mode: rule
+log-level: info
+external-controller: '127.0.0.1:9090'
+dns:
+    enable: false
+    ipv6: false
+    default-nameserver: [223.5.5.5, 119.29.29.29]
+    enhanced-mode: fake-ip
+    fake-ip-range: 198.18.0.1/16
+    use-hosts: true
+    nameserver: ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query']
+    fallback: ['https://doh.dns.sb/dns-query', 'https://dns.cloudflare.com/dns-query', 'https://dns.twnic.tw/dns-query', 'tls://8.8.4.4:853']
+    fallback-filter: { geoip: true, ipcidr: [240.0.0.0/4, 0.0.0.0/32] }
+
+proxy-providers:
+  hysteria:   
+    type: http
+    url: https://mareep.netlify.app/sub/merged_proxies_new.yaml
+    interval: 3600
+    path: ./profiles/hysteria.yaml  
+    health-check:
+      enable: true
+      interval: 600
+      url: https://www.gstatic.com/generate_204
+
+proxy-groups:
+
+  - name: 节点选择
+    type: select
+    proxies:
+      - hysteria节点负载均衡  
+      # - hysteria节点自动选择    
+      # - hysteria节点手动选择
+
+  - name: hysteria节点负载均衡 
+    type: load-balance 
+    use:
+        - hysteria
+    url: 'http://www.gstatic.com/generate_204'
+    interval: 300
+    #lazy: true
+    #disable-udp: true
+    # strategy: round-robin
+    strategy: consistent-hashing
+    exclude-filter: "油管-棉阿羊"
+
+    rules:
+    # 国内简单分流
+    - GEOSITE,google,hysteria节点负载均衡  
+    - GEOSITE,cn,DIRECT
+    - GEOIP,CN,DIRECT
+    - GEOIP,LAN,DIRECT
+    - GEOIP,lan,DIRECT,no-resolve
+    # 默认规则
+    - MATCH,hysteria节点负载均衡  
