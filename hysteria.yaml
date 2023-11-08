@@ -29,11 +29,11 @@ proxy-providers:
   hysteria:   
     type: http
     url: https://mareep.netlify.app/sub/merged_proxies_new.yaml
-    interval: 3600
+    interval: 600
     path: ./profiles/hysteria.yaml  
     health-check:
       enable: true
-      interval: 600
+      interval: 300
       url: https://www.gstatic.com/generate_204
 
 proxy-groups:
@@ -41,28 +41,39 @@ proxy-groups:
   - name: 节点选择
     type: select
     proxies:
-      - hysteria节点负载均衡  
-      # - hysteria节点自动选择    
+      - hysteria节点自动选择 
+      - hysteria节点负载均衡    
       # - hysteria节点手动选择
+
+  - name: hysteria节点自动选择    
+    type: url-test
+    use:
+      - hysteria
+    url: 'https://www.gstatic.com/generate_204'
+    interval: 30
+    tolerance: 50
+    exclude-filter: "油管-棉阿羊"
+    lazy: true
+    #disable-udp: true
 
   - name: hysteria节点负载均衡 
     type: load-balance 
     use:
         - hysteria
     url: 'http://www.gstatic.com/generate_204'
-    interval: 300
-    #lazy: true
+    interval: 60
+    lazy: true
     #disable-udp: true
     # strategy: round-robin
     strategy: consistent-hashing
     exclude-filter: "油管-棉阿羊"
 
-    rules:
-    # 国内简单分流
-    - GEOSITE,google,hysteria节点负载均衡  
-    - GEOSITE,cn,DIRECT
-    - GEOIP,CN,DIRECT
-    - GEOIP,LAN,DIRECT
-    - GEOIP,lan,DIRECT,no-resolve
-    # 默认规则
-    - MATCH,hysteria节点负载均衡  
+rules:
+# 国内简单分流
+- GEOSITE,google,hysteria节点自动选择      
+- GEOSITE,cn,DIRECT
+- GEOIP,CN,DIRECT
+- GEOIP,LAN,DIRECT
+- GEOIP,lan,DIRECT,no-resolve
+# 默认规则
+- MATCH,hysteria节点自动选择      
