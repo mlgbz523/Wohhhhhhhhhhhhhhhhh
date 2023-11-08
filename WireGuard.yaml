@@ -31,12 +31,12 @@ proxy-groups:
     - warp负载均衡 
 
 - name: warp负载均衡
-  type: load-balance #负载均衡
+  type: select #负载均衡
   proxies:
     - WARP
   url: http://www.gstatic.com/generate_204
   interval: 300
-  strategy: round-robin
+  # strategy: round-robin
 
 rules:
   # 国内简单分流
