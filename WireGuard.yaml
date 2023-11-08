@@ -23,12 +23,12 @@ proxies:
     - https://dns.cloudflare.com/dns-query
   
 
-  proxy-groups:
+proxy-groups:
 
-  - name: warp节点
-    type: select
-    proxies:  
-      - warp负载均衡 
+- name: warp节点
+  type: select
+  proxies:  
+    - warp负载均衡 
 
 - name: warp负载均衡
   type: load-balance #负载均衡
@@ -39,11 +39,11 @@ proxies:
   strategy: round-robin
 
 rules:
-    # 国内简单分流
-    - GEOSITE,google,warp负载均衡
-    - GEOSITE,cn,DIRECT
-    - GEOIP,CN,DIRECT
-    - GEOIP,LAN,DIRECT
-    - GEOIP,lan,DIRECT,no-resolve
-    # 默认规则
-    - MATCH,warp负载均衡
+  # 国内简单分流
+  - GEOSITE,google,warp负载均衡
+  - GEOSITE,cn,DIRECT
+  - GEOIP,CN,DIRECT
+  - GEOIP,LAN,DIRECT
+  - GEOIP,lan,DIRECT,no-resolve
+  # 默认规则
+  - MATCH,warp负载均衡
