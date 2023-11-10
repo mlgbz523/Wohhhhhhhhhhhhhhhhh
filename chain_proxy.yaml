@@ -94,7 +94,7 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 300
 
-Proxy Groups:
+proxy-groups:
 # Traffic: Clash <-> P1_Auto <-> warp  <-> Internet
 - name: "relay"
   type: relay
