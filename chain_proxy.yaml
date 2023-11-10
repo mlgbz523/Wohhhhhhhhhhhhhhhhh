@@ -92,23 +92,9 @@ proxy-providers:
   #     url: https://www.gstatic.com/generate_204
   #     interval: 300
   
-proxy-groups:
-proxies:
-- name: "warp"
-  type: vless
-  server: mlgbz.mlgbz511.workers.dev
-  port: 443
-  uuid: 5c499bb5-5200-4844-bc7f-1d5a4f17c7ea
-  network: ws
-  tls: true
-  udp: false
-  sni: mlgbz.mlgbz511.workers.dev
-  client-fingerprint: chrome
-  ws-opts:
-    path: "/?ed=2048"
-    headers:
-      host: mlgbz.mlgbz511.workers.dev
 
+  
+proxy-groups:
 # Traffic: Clash <-> P1_Auto <-> warp  <-> Internet
 - name: "relay"
   type: relay
@@ -140,6 +126,21 @@ proxies:
   strategy: round-robin
   # or consistent-hashing 
   exclude-filter: " (?i)^油"
+proxies:
+- name: "warp"
+  type: vless
+  server: mlgbz.mlgbz511.workers.dev
+  port: 443
+  uuid: 5c499bb5-5200-4844-bc7f-1d5a4f17c7ea
+  network: ws
+  tls: true
+  udp: false
+  sni: mlgbz.mlgbz511.workers.dev
+  client-fingerprint: chrome
+  ws-opts:
+    path: "/?ed=2048"
+    headers:
+      host: mlgbz.mlgbz511.workers.dev
 
 
 rules:
