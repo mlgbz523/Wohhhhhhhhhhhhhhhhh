@@ -97,8 +97,14 @@ proxy-groups:
 - name: "relay"
   type: relay
   proxies:
-    - P1_Auto
+    - P1_Selector
     - warp
+  
+- name: "P1_Selector"
+  type: select
+  proxies:
+    - P1_Auto_Balance
+    - P1_Auto_Fast
 
 - name: "P1_Auto_Fast"
   type: url-test
@@ -111,7 +117,7 @@ proxy-groups:
   # or consistent-hashing 
   exclude-filter: " (?i)^油"
 
-- name: "P1_Auto"
+- name: "P1_Auto_Balance"
   type: load-balance
   use:
     - p1
