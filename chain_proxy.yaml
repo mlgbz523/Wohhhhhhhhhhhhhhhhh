@@ -127,7 +127,7 @@ proxy-providers:
 proxies:
 - name: "warp"
   type: vless
-  server: mlgbz.mlgbz511.workers.dev
+  server: 'cdn-b100.xn--b6gac.eu.org'
   port: 443
   uuid: 5c499bb5-5200-4844-bc7f-1d5a4f17c7ea
   network: ws
