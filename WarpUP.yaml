@@ -47,4 +47,20 @@ proxies:
     path: "/?ed=2048"
     headers:
       host: mlgbz.mlgbz511.workers.dev
-  dialer-proxy: "hysteria节点自动选择"
+
+proxy-groups:
+
+  - name: 节点选择
+    type: select
+    proxies:
+      - mlgbz.mlgbz511.workers.dev
+ 
+rules:
+# 国内简单分流
+- GEOSITE,google,节点选择    
+- GEOSITE,cn,DIRECT
+- GEOIP,CN,DIRECT
+- GEOIP,LAN,DIRECT
+- GEOIP,lan,DIRECT,no-resolve
+# 默认规则
+- MATCH,节点选择
