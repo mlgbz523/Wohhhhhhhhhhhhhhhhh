@@ -3,7 +3,7 @@ ipv6: true
 log-level: info
 allow-lan: true
 mixed-port: 7890
-unified-delay: false # 
+unified-delay: true # 统一延迟
 tcp-concurrent: true # tcp并发
 external-controller: 127.0.0.1:9090
 tls:
@@ -26,8 +26,6 @@ geox-url:
 
 find-process-mode: strict
 global-client-fingerprint: chrome
-
-
 
 sniffer:
   enable: true
@@ -77,7 +75,7 @@ proxy-providers:
     type: http
     url: "https://mareep.netlify.app/sub/merged_proxies_new.yaml"
     path: ./proxy_providers/provider1.yaml
-    interval: 1300
+    interval: 600
     # dialer-proxy: proxy
     health-check:
       enable: true
@@ -101,6 +99,17 @@ proxy-groups:
   proxies:
     - P1_Auto
     - warp
+
+- name: "P1_Auto_Fast"
+  type: url-test
+  use:
+    - p1
+  url: 'https://www.gstatic.com/generate_204'
+  interval: 300
+  tolerance: 50
+  # strategy: round-robin
+  # or consistent-hashing 
+  exclude-filter: " (?i)^油"
 
 - name: "P1_Auto"
   type: load-balance
