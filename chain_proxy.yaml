@@ -7,8 +7,8 @@ unified-delay: false #
 tcp-concurrent: true # tcp并发
 external-controller: 127.0.0.1:9090
 tls:
-  certificate: string # 证书 PEM 格式，或者 证书的路径
-  private-key: string # 证书对应的私钥 PEM 格式，或者私钥路径
+  - certificate: string # 证书 PEM 格式，或者 证书的路径
+  - private-key: string # 证书对应的私钥 PEM 格式，或者私钥路径
 skip-auth-prefixes:
   - 127.0.0.1/8
   - ::1/128
@@ -26,8 +26,8 @@ global-client-fingerprint: chrome
 
 # 储存 API 对策略组的选择，以供下次启动时使用
 profile:
-  store-selected: true
-  store-fake-ip: true
+  - store-selected: true
+  - store-fake-ip: true
 
 sniffer:
   enable: true
