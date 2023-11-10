@@ -17,7 +17,7 @@ profile:
   - store-selected: true
   - store-fake-ip: true
 global-ua: clash.meta
-keep-alive-interval: 30
+# keep-alive-interval: 30
 geodata-mode: true
 geox-url:
   geoip: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
@@ -39,40 +39,60 @@ sniffer:
 tun:
   enable: true
   stack: system
-  dns-hijack:
-    - 'any:53'
+  # dns-hijack:
+  #   - 'any:53'
   auto-route: true
   auto-detect-interface: true
 
 dns:
-  enable: true
-  listen: :1053
+  prefer-h3: true
+  listen: 0.0.0.0:1053
   ipv6: true
-  enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
-  fake-ip-filter:
-    - '*'
-    - '+.lan'
-    - '+.local'
+  # 默认 dns, 用于解析 DNS 服务器 的域名
   default-nameserver:
     - 223.5.5.5
-    - 8.8.8.8
-    - 1.1.1.1
-  nameserver:
-    - 'tls://8.8.4.4#dns'
-    - 'tls://1.0.0.1#dns'
-  # proxy-server-nameserver:  
-  # - 'https://1.0.0.1/dns-query'
-  # - 'https://1.1.1.1/dns-query'
-  # - https://dns.cloudflare.com/dns-query
-  # - https://doh.pub/dns-query
-  # - 'geosite:cn': https://doh.pub/dns-query
+
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  # fakeip 过滤
+  fake-ip-filter:
+    - '*.lan'
+    - localhost.ptlogin2.qq.com
+    
+  # 指定域名查询的解析服务器，可使用 geosite,
   nameserver-policy:
-    'mlgbz.mlgbz511.workers.dev': 
-      - 'https://1.1.1.1/dns-query'
-      - 'https://1.0.0.1/dns-query'
-      - 'https://dns.cloudflare.com/dns-query'
-   
+    'www.google.com': '8.8.8.8'
+    'www.baidu.com': '114.114.114.114'
+    '+.internal.crop.com': '10.0.0.1'
+    'geosite:cn': https://doh.pub/dns-query
+    
+  #默认的域名解析服务器，
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query # 阿里云
+    
+  fallback:
+    - tls://8.8.4.4 # 谷歌
+    - tls://1.1.1.1 # cloudflare
+    - tls://114.114.114.114 # 百度
+
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+
+  fallback-filter:
+
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw 
+    ipcidr:
+      - 240.0.0.0/4
+    domain:
+      - '+.google.com'
+      - '+.facebook.com'
+      - '+.youtube.com'
+
 proxy-providers:
   p1:
     type: http
@@ -112,6 +132,18 @@ proxies:
       host: mlgbz.mlgbz511.workers.dev
 
 proxy-groups:
+- name: "Warp_Switch"
+  type: select
+  proxies:
+    - relay
+    - P1_Selector
+
+- name: "P1_Selector"
+  type: select
+  proxies:
+    - P1_Auto_Fast
+    - P1_Auto_Balance
+    
 # Traffic: Clash <-> P1_Auto <-> warp  <-> Internet
 - name: "relay"
   type: relay
@@ -119,12 +151,6 @@ proxy-groups:
     - P1_Selector
     - warp
   
-- name: "P1_Selector"
-  type: select
-  proxies:
-    - P1_Auto_Fast
-    - P1_Auto_Balance
-
 - name: "P1_Auto_Fast"
   type: url-test
   use:
@@ -146,10 +172,10 @@ proxy-groups:
 
 rules:
 # 国内简单分流
-- GEOSITE,google,relay   
+- GEOSITE,google,Warp_Switch   
 - GEOSITE,cn,DIRECT
 - GEOIP,CN,DIRECT
 - GEOIP,LAN,DIRECT
 - GEOIP,lan,DIRECT,no-resolve
 # 默认规则
-- MATCH,relay
+- MATCH,Warp_Switch
