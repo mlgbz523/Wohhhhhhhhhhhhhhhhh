@@ -12,7 +12,10 @@ tls:
 skip-auth-prefixes:
   - 127.0.0.1/8
   - ::1/128
-
+# # 储存 API 对策略组的选择，以供下次启动时使用
+profile:
+  - store-selected: true
+  - store-fake-ip: true
 global-ua: clash.meta
 keep-alive-interval: 30
 geodata-mode: true
@@ -24,10 +27,7 @@ geox-url:
 find-process-mode: strict
 global-client-fingerprint: chrome
 
-# # 储存 API 对策略组的选择，以供下次启动时使用
-# profile:
-#   - store-selected: true
-#   - store-fake-ip: true
+
 
 sniffer:
   enable: true
