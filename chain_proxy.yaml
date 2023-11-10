@@ -82,15 +82,15 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 300
 
-  warpUp:
-    type: http
-    url: "https://raw.githubusercontent.com/mlgbz523/warp-hysteria2/main/WarpUP.yaml"
-    path: ./proxy_providers/warp.yaml
-    interval: 3600
-    health-check:
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 300
+  # warpUp:
+  #   type: http
+  #   url: "https://raw.githubusercontent.com/mlgbz523/warp-hysteria2/main/WarpUP.yaml"
+  #   path: ./proxy_providers/warp.yaml
+  #   interval: 3600
+  #   health-check:
+  #     enable: true
+  #     url: https://www.gstatic.com/generate_204
+  #     interval: 300
 
 proxy-groups:
 # Traffic: Clash <-> P1_Auto <-> warp  <-> Internet
@@ -129,9 +129,20 @@ proxy-groups:
   exclude-filter: " (?i)^油"
 
 - name: "warp"
-  type: select
-  use:
-    - warpUp
+# - name: mlgbz.mlgbz511.workers.dev 
+  type: vless
+  server: mlgbz.mlgbz511.workers.dev
+  port: 443
+  uuid: 5c499bb5-5200-4844-bc7f-1d5a4f17c7ea
+  network: ws
+  tls: true
+  udp: false
+  sni: mlgbz.mlgbz511.workers.dev
+  client-fingerprint: chrome
+  ws-opts:
+    path: "/?ed=2048"
+    headers:
+      host: mlgbz.mlgbz511.workers.dev
   
 rules:
 # 国内简单分流
