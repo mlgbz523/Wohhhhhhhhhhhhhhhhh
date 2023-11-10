@@ -1,11 +1,13 @@
 mode: rule
-ipv6: true
+ipv6: false
 log-level: info
 allow-lan: true
 mixed-port: 7890
-unified-delay: true # 统一延迟
+bind-address: '*'
+use-hosts: false
+unified-delay: false # 统一延迟
 tcp-concurrent: true # tcp并发
-external-controller: 127.0.0.1:9090
+external-controller: '127.0.0.1:9090'
 tls:
   - certificate: string # 证书 PEM 格式，或者 证书的路径
   - private-key: string # 证书对应的私钥 PEM 格式，或者私钥路径
@@ -29,69 +31,77 @@ global-client-fingerprint: chrome
 
 sniffer:
   enable: true
+  force-dns-mapping: true
   sniff:
     TLS:
-      ports: [443, 8443]
+      ports: [443, 8443, 9443, 10443]
     HTTP:
-      ports: [80, 8080-8880]
+      ports: [80, 8080-8880, 9080-9980]
       override-destination: true
+    QUIC:
+      ports: [443, 8443]
+  force-domain: 'mlgbz.mlgbz511.workers.dev'
 
 tun:
   enable: true
   stack: system
-  # dns-hijack:
-  #   - 'any:53'
+  dns-hijack:
+    - 'any:53'
+    - tcp://any:53
   auto-route: true
   auto-detect-interface: true
 
 dns:
   prefer-h3: true
-  listen: 0.0.0.0:1053
+  listen: 0.0.0.0:53
   ipv6: true
   # 默认 dns, 用于解析 DNS 服务器 的域名
   default-nameserver:
-    - 223.5.5.5
-
+    - '223.5.5.5'
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   # fakeip 过滤
   fake-ip-filter:
     - '*.lan'
     - localhost.ptlogin2.qq.com
-    
+    - "xbox.*.microsoft.com"
+    - "+.xboxlive.com"
+
   # 指定域名查询的解析服务器，可使用 geosite,
   nameserver-policy:
+    'mlgbz.mlgbz511.workers.dev': 'https://1.1.1.1/dns-query'
     'www.google.com': '8.8.8.8'
-    'www.baidu.com': '114.114.114.114'
     '+.internal.crop.com': '10.0.0.1'
-    'geosite:cn': https://doh.pub/dns-query
-    
+    'geosite:cn':
+      - 'https://doh.pub/dns-query'
+      - 'https://dns.alidns.com/dns-query'
+      - 'https://doh.dnspod.com/dns-query'
+
   #默认的域名解析服务器，
   nameserver:
-    - https://1.1.1.1/dns-query
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query # 阿里云
+    - 'https://1.1.1.1/dns-query#warp'
+    - 'https://doh.pub/dns-query'
+    - 'https://dns.alidns.com/dns-query' # 阿里云
     
   fallback:
-    - tls://8.8.4.4 # 谷歌
-    - tls://1.1.1.1 # cloudflare
-    - tls://114.114.114.114 # 百度
+    - 'tls://8.8.4.4' # 谷歌
+    - 'tls://1.1.1.1' # cloudflare
+    - 'tls://114.114.114.114' # 百度
 
   proxy-server-nameserver:
-    - https://doh.pub/dns-query
+    - 'https://doh.pub/dns-query'
 
   fallback-filter:
-
     geoip: true
     geoip-code: CN
     geosite:
       - gfw 
     ipcidr:
       - 240.0.0.0/4
-    domain:
-      - '+.google.com'
-      - '+.facebook.com'
-      - '+.youtube.com'
+    # domain:
+    #   - '+.google.com'
+    #   - '+.facebook.com'
+    #   - '+.youtube.com'
 
 proxy-providers:
   p1:
@@ -104,14 +114,13 @@ proxy-providers:
       enable: true
       url: https://www.gstatic.com/generate_204
       interval: 300
-
-  # warpUp:
+  # warp:
   #   type: http
   #   url: "https://raw.githubusercontent.com/mlgbz523/warp-hysteria2/main/WarpUP.yaml"
   #   path: ./proxy_providers/warp.yaml
   #   interval: 3600
   #   health-check:
-  #     enable: true
+  #     enable: false
   #     url: https://www.gstatic.com/generate_204
   #     interval: 300
   
@@ -124,6 +133,8 @@ proxies:
   network: ws
   tls: true
   udp: false
+  alpn:
+  - h3
   sni: mlgbz.mlgbz511.workers.dev
   client-fingerprint: chrome
   ws-opts:
@@ -171,11 +182,11 @@ proxy-groups:
   exclude-filter: " (?i)^油"
 
 rules:
-# 国内简单分流
-- GEOSITE,google,Warp_Switch   
-- GEOSITE,cn,DIRECT
+# 对 Google 的流量使用 Warp_Switch 代理
+- DOMAIN-SUFFIX,google.com,Warp_Switch
+# 对国内的流量使用直接连接
 - GEOIP,CN,DIRECT
+# 对局域网的流量使用直接连接
 - GEOIP,LAN,DIRECT
-- GEOIP,lan,DIRECT,no-resolve
-# 默认规则
+# 对所有其他流量使用 Warp_Switch 代理
 - MATCH,Warp_Switch
