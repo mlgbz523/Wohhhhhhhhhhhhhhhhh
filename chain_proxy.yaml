@@ -64,10 +64,10 @@ dns:
   proxy-server-nameserver:
     - https://doh.pub/dns-query
   nameserver-policy:
-    - "geosite:cn,private":
+    "geosite:cn,private":
       - https://doh.pub/dns-query
       - https://dns.alidns.com/dns-query
-    - 'mlgbz.mlgbz511.workers.dev': 
+    'mlgbz.mlgbz511.workers.dev': 
       - 'https://1.1.1.1/dns-query'
       - 'https://1.0.0.1/dns-query'
       - 'https://dns.cloudflare.com/dns-query'  
