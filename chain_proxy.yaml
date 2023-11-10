@@ -103,8 +103,9 @@ proxy-groups:
 - name: "P1_Selector"
   type: select
   proxies:
-    - P1_Auto_Balance
     - P1_Auto_Fast
+    - P1_Auto_Balance
+ 
 
 - name: "P1_Auto_Fast"
   type: url-test
