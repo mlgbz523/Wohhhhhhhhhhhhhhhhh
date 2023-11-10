@@ -105,7 +105,6 @@ proxy-groups:
   proxies:
     - P1_Auto_Fast
     - P1_Auto_Balance
- 
 
 - name: "P1_Auto_Fast"
   type: url-test
@@ -114,8 +113,6 @@ proxy-groups:
   url: 'https://www.gstatic.com/generate_204'
   interval: 300
   tolerance: 50
-  # strategy: round-robin
-  # or consistent-hashing 
   exclude-filter: " (?i)^油"
 
 - name: "P1_Auto_Balance"
