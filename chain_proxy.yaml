@@ -56,20 +56,23 @@ dns:
     - '+.local'
   default-nameserver:
     - 223.5.5.5
+    - 8.8.8.8
+    - 1.1.1.1
   nameserver:
     - 'tls://8.8.4.4#dns'
     - 'tls://1.0.0.1#dns'
-  proxy-server-nameserver:
-    - https://doh.pub/dns-query
+  # proxy-server-nameserver:  
+  # - 'https://1.0.0.1/dns-query'
+  # - 'https://1.1.1.1/dns-query'
+  # - https://dns.cloudflare.com/dns-query
+  # - https://doh.pub/dns-query
+  # - 'geosite:cn': https://doh.pub/dns-query
   nameserver-policy:
-    "geosite:cn,private":
-      - https://doh.pub/dns-query
-      - https://dns.alidns.com/dns-query
     'mlgbz.mlgbz511.workers.dev': 
       - 'https://1.1.1.1/dns-query'
       - 'https://1.0.0.1/dns-query'
-      - 'https://dns.cloudflare.com/dns-query'  
-
+      - 'https://dns.cloudflare.com/dns-query'
+   
 proxy-providers:
   p1:
     type: http
