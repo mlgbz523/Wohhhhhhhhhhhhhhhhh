@@ -1,0 +1,104 @@
+port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+unified-delay: true
+global-client-fingerprint: chrome
+
+dns:
+  enable: true
+  listen: :53
+  ipv6: true
+  prefer-h3: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+  - 223.5.5.5
+  - 8.8.8.8
+  nameserver:
+  - https://doh.pub/dns-query
+  - https://dns.cloudflare.com/dns-query
+  proxy-server-nameserver:
+  - https://dns.cloudflare.com/dns-query
+  - https://doh.pub/dns-query
+  - https://dns.alidns.com/dns-query
+  fallback:
+  - tls://8.8.4.4 # 谷歌
+  - https://1.0.0.1/dns-query
+  - tls://dns.google
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+    - 240.0.0.0/4
+
+proxies: 
+- name: mlgbz.mlgbz511.workers.dev 
+  type: vless
+  server: mlgbz.mlgbz511.workers.dev
+  port: 443
+  uuid: 5c499bb5-5200-4844-bc7f-1d5a4f17c7ea
+  network: ws
+  tls: true
+  udp: false
+  sni: mlgbz.mlgbz511.workers.dev
+  client-fingerprint: chrome
+  ws-opts:
+    path: "/?ed=2048"
+    headers:
+      host: mlgbz.mlgbz511.workers.dev
+  dialer-proxy: "hysteria节点自动选择"
+
+proxy-providers:
+  hysteria:   
+    type: http
+    url: https://mareep.netlify.app/sub/merged_proxies_new.yaml
+    interval: 600
+    path: ./profiles/hysteria.yaml  
+    health-check:
+      enable: true
+      interval: 300
+      url: https://www.gstatic.com/generate_204
+
+proxy-groups:
+
+  - name: 节点选择
+    type: select
+    proxies:
+      - hysteria节点自动选择 
+      - hysteria节点负载均衡   
+      - mlgbz.mlgbz511.workers.dev
+      # - hysteria节点手动选择
+
+  - name: hysteria节点自动选择    
+    type: url-test
+    use:
+      - hysteria
+    url: 'https://www.gstatic.com/generate_204'
+    interval: 30
+    tolerance: 50
+    exclude-filter: "油管-棉阿羊"
+    # lazy: true
+    #disable-udp: true
+
+  - name: hysteria节点负载均衡 
+    type: load-balance 
+    use:
+        - hysteria
+    url: 'http://www.gstatic.com/generate_204'
+    interval: 60
+    lazy: true
+    #disable-udp: true
+    # strategy: round-robin
+    strategy: consistent-hashing
+    exclude-filter: "油管-棉阿羊"
+
+rules:
+# 国内简单分流
+- GEOSITE,google,节点选择    
+- GEOSITE,cn,DIRECT
+- GEOIP,CN,DIRECT
+- GEOIP,LAN,DIRECT
+- GEOIP,lan,DIRECT,no-resolve
+# 默认规则
+- MATCH,节点选择
