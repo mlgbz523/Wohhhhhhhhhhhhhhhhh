@@ -79,6 +79,8 @@ dns:
 
   #默认的域名解析服务器，
   nameserver:
+    - 'tls://dns.google#pP1_Auto_Fast'
+    - 'tls://dns.google#pP1_Auto_Balance'
     - 'https://1.1.1.1/dns-query#warp'
     - 'https://1.0.0.1/dns-query#warp'
     - 'https://doh.pub/dns-query'
