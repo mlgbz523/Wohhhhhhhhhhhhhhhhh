@@ -5,7 +5,7 @@ allow-lan: true
 mixed-port: 7890
 bind-address: '*'
 use-hosts: false
-unified-delay: false # 统一延迟
+unified-delay: true # 统一延迟
 tcp-concurrent: true # tcp并发
 external-controller: '127.0.0.1:9090'
 tls:
@@ -80,6 +80,7 @@ dns:
   #默认的域名解析服务器，
   nameserver:
     - 'https://1.1.1.1/dns-query#warp'
+    - 'https://1.0.0.1/dns-query#warp'
     - 'https://doh.pub/dns-query'
     - 'https://dns.alidns.com/dns-query' # 阿里云
     
