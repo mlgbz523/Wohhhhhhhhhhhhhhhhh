@@ -151,8 +151,9 @@ proxy-groups:
     - P1_hysteria_2
     - P1_hysteria
     - P1_meta_tuic
+    - Auto
   interval: 60
-  tolerance: 50
+  # tolerance: 50
   # strategy: consistent-hashing # 强调连接稳定性
     
 # Traffic: Clash <-> P1_Auto <-> warp  <-> Internet
