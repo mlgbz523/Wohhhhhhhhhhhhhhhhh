@@ -163,37 +163,6 @@ proxy-groups:
     - P1_Selector
     - warp
 
-- name: "P1_hysteria"
-  type: load-balance
-  use:
-    - p1
-  url: 'https://www.gstatic.com/generate_204'
-  interval: 300
-  tolerance: 50
-  strategy: consistent-hashing # 强调连接稳定性
-  filter: "hysteria_.*"
-
-- name: "P1_hysteria_2"
-  type: load-balance
-  use:
-    - p1
-  url: 'https://www.gstatic.com/generate_204'
-  interval: 300
-  tolerance: 50
-  strategy: consistent-hashing 
-  filter: "hysteria2_.*"
-
-
-- name: "P1_meta_tuic"
-  type: load-balance
-  use:
-    - p1
-  url: 'https://www.gstatic.com/generate_204'
-  interval: 300
-  tolerance: 50
-  strategy: consistent-hashing  
-  filter: "tuic_.*"
-
 - name: "GameMode"
   type: fallback
   proxies:
@@ -208,11 +177,70 @@ proxy-groups:
 
 - name: "Auto"
   type: url-test
+  proxies:
+    - P1auto_meta_tuic
+    - P1auto_hysteria_2
+    - P1auto_hysteria
+  url: 'https://www.gstatic.com/generate_204'
+  interval: 300
+
+- name: "P1_hysteria"
+  type: load-balance
   use:
     - p1
   url: 'https://www.gstatic.com/generate_204'
-  interval: 68
-  tolerance: 0
+  interval: 300
+  tolerance: 50
+  strategy: consistent-hashing # 强调连接稳定性
+  filter: "hysteria_.*"
+
+- name: "P1auto_hysteria"
+  type: url-test
+  use:
+    - p1
+  url: 'https://www.gstatic.com/generate_204'
+  interval: 300
+  tolerance: 10
+  filter: "hysteria_.*"
+
+- name: "P1_hysteria_2"
+  type: load-balance
+  use:
+    - p1
+  url: 'https://www.gstatic.com/generate_204'
+  interval: 300
+  tolerance: 50
+  strategy: consistent-hashing 
+  filter: "hysteria2_.*"
+
+- name: "P1auto_hysteria_2"
+  type: url-test
+  use:
+    - p1
+  url: 'https://www.gstatic.com/generate_204'
+  interval: 300
+  # tolerance: 50
+  filter: "hysteria2_.*"
+
+- name: "P1_meta_tuic"
+  type: load-balance
+  use:
+    - p1
+  url: 'https://www.gstatic.com/generate_204'
+  interval: 300
+  # tolerance: 50
+  strategy: consistent-hashing  
+  filter: "tuic_.*"
+
+- name: "P1auto_meta_tuic"
+  type: url-test
+  use:
+    - p1
+  url: 'https://www.gstatic.com/generate_204'
+  interval: 300
+  filter: "tuic_.*"
+
+
 
 rules:
 # 对 Google 的流量使用 Warp_Switch 代理
