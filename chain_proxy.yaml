@@ -145,7 +145,6 @@ proxy-groups:
     - GameMode
 
 - name: "P1_Selector"
-  # type: url-test
   type: fallback
   proxies:
     - P1_hysteria
