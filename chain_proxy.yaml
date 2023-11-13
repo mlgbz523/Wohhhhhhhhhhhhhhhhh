@@ -145,10 +145,11 @@ proxy-groups:
     - GameMode
 
 - name: "P1_Selector"
+  # type: url-test
   type: fallback
   proxies:
-    - P1_hysteria
     - P1_hysteria_2
+    - P1_hysteria
     - P1_meta_tuic
   interval: 60
   tolerance: 50
