@@ -5,10 +5,19 @@ log-level: info
 allow-lan: true
 mixed-port: 7890
 bind-address: '*'
-use-hosts: false
 unified-delay: true # 统一延迟
 tcp-concurrent: true # tcp并发
 external-controller: '127.0.0.1:9090'
+
+use-hosts: false
+hosts:
+  - 'bing.com': '20.196.210.19'
+  - 'www.bing.com': '20.196.210.19'
+  - 'cn.bing.com': '20.196.210.19'
+  - 'r.bing.com': '20.196.210.19'
+  - 'edgeservices.bing.com' : '20.196.210.19'
+  - 'sydney.bing.com' : '20.196.210.19'
+
 tls:
   - certificate: string # 证书 PEM 格式，或者 证书的路径
   - private-key: string # 证书对应的私钥 PEM 格式，或者私钥路径
