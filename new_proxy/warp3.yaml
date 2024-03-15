@@ -42,7 +42,7 @@ sniffer:
       override-destination: true
     QUIC:
       ports: [443, 8443]
-  force-domain: "mlgbz.mlgbz511.workers.dev"
+  # force-domain: "mlgbz.mlgbz511.workers.dev"
 tun:
   enable: true
   stack: system
@@ -178,9 +178,11 @@ proxy-providers:
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
-      interval: 600
+      interval: 3600
+      timeout: 5000
+      expected-status: 204
 
-  sanfen:
+  sf:
     type: http
     url: "https://sub.sanfen017.xyz/api/v1/client/subscribe?token=79727166fb0488ff36e5ebe2f1b13224&flag=clash"
     path: .\profiles\rcyCn951Op2E.yaml
@@ -188,20 +190,24 @@ proxy-providers:
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
-      interval: 600
+      interval: 3600
+      timeout: 5000
+      expected-status: 204
 
-  # yiyuan:
-  #   type: http
-  #   url: "https://sub3.smallstrawberry.com/api/v1/client/subscribe?token=8180e7d029fd7abd3d2311977237bed7"
-  #   path: .\profiles\rlPd1ozi9NuO.yaml
-  #   interval: 3600
-  #   health-check:
-  #     enable: true
-  #     url: https://www.gstatic.com/generate_204
-  #     interval: 600
+  p2:
+    type: http
+    url: "https://mlgbz511.mlgbz511.workers.dev/"
+    path: .\profiles\rcW0mTLs9Uyu.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: https://cp.cloudflare.com
+      interval: 3600
+      timeout: 5000
+      expected-status: 204
 
 proxies:
-  - name: "warp"
+  - name: "warp(dialer-proxy)"
     type: vless
     server: "mlgbz.mlgbz511.workers.dev"
     port: 443
@@ -217,73 +223,201 @@ proxies:
       path: "/?ed=2048"
       headers:
         host: mlgbz.mlgbz511.workers.dev
-    dialer-proxy: P1_Selector
+    dialer-proxy: font_proxy_Selector
+
+
+  - name: "warp(relay)"
+    type: vless
+    server: "mlgbz.mlgbz511.workers.dev"
+    port: 443
+    uuid: 5c499bb5-5200-4844-bc7f-1d5a4f17c7ea
+    network: ws
+    tls: true
+    udp: false
+    alpn:
+      - h3
+    sni: mlgbz.mlgbz511.workers.dev
+    client-fingerprint: chrome
+    ws-opts:
+      path: "/?ed=2048"
+      headers:
+        host: mlgbz.mlgbz511.workers.dev
+    dialer-proxy: font_proxy_Selector
+
 proxy-groups:
   - name: "Mode"
     type: select
     proxies:
-      - "Mlgbz511"
-      - P1_Selector
+      - warp(dialer-proxy)
+      - relay
+      - font_proxy_Selector
 
-  - name: "P1_Selector"
-    type: fallback
-    proxies:
-      - "p1_url_test"
-      - "p1_loadblance_round-robin"
-      - "p1_loadblance_consistent-hashing"
-      - "p1_fallback"
-
-    url: "https://www.gstatic.com/generate_204"
-    interval: 600
-    tolerance: 50
-
-  # Traffic: Clash <-> P1_Auto <-> warp  <-> Internet
-  - name: "Mlgbz511"
+  - name: "font_proxy_Selector"
     type: select
     proxies:
-      # - P1_Selector
-      - warp
+      - "P1"
+      - "P2"
+      - "SF"
+  - name: "relay"
+    type: relay
+    proxies:
+     - font_proxy_Selector
+     - warp(relay)
+# selcet box
+  - name: "P1"
+    type: select
+    proxies:
+      - "p1_url_test"
+      - "p1_fallback"
+      - "p1_loadblance(hashing)"
+      - "p1_loadblance(round-robin)"
 
+
+  - name: "P2"
+    type: select
+    proxies:
+      - "p2_url_test"
+      - "p2_fallback"
+      - "p2_loadblance(hashing)"
+      - "p2_loadblance(round-robin)"
+      
+  - name: "SF"
+    type: select
+    proxies:
+      - "sf_url_test"
+      - "sf_fallback"
+      - "sf_loadblance(hashing)"
+      - "sf_loadblance(round-robin)"
+
+# p2 proxy     
+  - name: "p2_url_test"
+    type: url-test
+    use:
+      - p2
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+    
+  - name: "p2_fallback"
+    type: fallback
+    use:
+      - p2
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+
+  - name: "p2_loadblance(hashing)"
+    type: load-balance
+    use:
+      - p2
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    strategy: consistent-hashing
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+
+  - name: "p2_loadblance(round-robin)"
+    type: load-balance
+    use:
+      - p2
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    strategy: round-robin
+    interval: 600
+    tolerance: 50
+    timeout: 5000 
+
+# p1 proxy    
   - name: "p1_url_test"
     type: url-test
     use:
       - p1
-      - sanfen
     url: http://www.gstatic.com/generate_204
-    interval: 300
+    layz: true
+    interval: 600
     tolerance: 50
-
-  - name: "p1_loadblance_round-robin"
-    type: load-balance
-    use:
-      - p1
-      - sanfen
-
-    url: "https://www.gstatic.com/generate_204"
-    interval: 600
-    tolerance: 30
-    strategy: round-robin # 强调连接稳定性
-
-  - name: "p1_loadblance_consistent-hashing"
-    type: load-balance
-    use:
-      - p1
-      - sanfen
-
-    url: "https://www.gstatic.com/generate_204"
-    interval: 600
-    tolerance: 30
-    strategy: consistent-hashing # 强调连接稳定性
-
+    timeout: 5000
+    
   - name: "p1_fallback"
     type: fallback
     use:
       - p1
-      - sanfen
-
-    url: "https://www.gstatic.com/generate_204"
+    url: http://www.gstatic.com/generate_204
+    layz: true
     interval: 600
-    tolerance: 30
+    tolerance: 50
+    timeout: 5000
+
+  - name: "p1_loadblance(hashing)"
+    type: load-balance
+    use:
+      - p1
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    strategy: consistent-hashing
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+
+  - name: "p1_loadblance(round-robin)"
+    type: load-balance
+    use:
+      - p1
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    strategy: round-robin
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+
+# SF proxy     
+  - name: "sf_url_test"
+    type: url-test
+    use:
+      - sf
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+    
+  - name: "sf_fallback"
+    type: fallback
+    use:
+      - sf
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+
+  - name: "sf_loadblance(hashing)"
+    type: load-balance
+    use:
+      - sf
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    strategy: consistent-hashing
+    interval: 600
+    tolerance: 50
+    timeout: 5000
+
+  - name: "sf_loadblance(round-robin)"
+    type: load-balance
+    use:
+      - sf
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    strategy: round-robin
+    interval: 600
+    tolerance: 50
+    timeout: 5000 
+
 
 rules:
   - DOMAIN-SUFFIX,cursor.sh,DIRECT
@@ -294,7 +428,7 @@ rules:
   # 对局域网的流量使用直接连接
   - GEOIP,LAN,DIRECT
   # 对所有其他流量使用 Warp_Switch 代理
-  #- MATCH,Mode
+  - MATCH,Mode
   - 'DOMAIN,xn--ehq00hgtfdmt.xyz,DIRECT'
   - 'DOMAIN,safebrowsing.urlsec.qq.com,DIRECT'
   - 'DOMAIN,safebrowsing.googleapis.com,DIRECT'
