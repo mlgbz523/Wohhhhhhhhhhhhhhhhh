@@ -251,19 +251,20 @@ proxy-groups:
       - warp(dialer-proxy)
       - relay
       - font_proxy_Selector
+    
 
   - name: "font_proxy_Selector"
-    type: select
+    type: fallback
     proxies:
       - "P1"
       - "P2"
       - "SF"
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 50
+    timeout: 5000
 
-  - name: "relay"
-    type: relay
-    proxies:
-     - font_proxy_Selector
-     - warp(relay)
+
 
 # selcet box
   - name: "P1"
@@ -273,6 +274,7 @@ proxy-groups:
       - "p1_fallback"
       - "p1_loadblance(hashing)"
       - "p1_loadblance(round-robin)"
+  
 
 
   - name: "P2"
@@ -282,6 +284,7 @@ proxy-groups:
       - "p2_fallback"
       - "p2_loadblance(hashing)"
       - "p2_loadblance(round-robin)"
+ 
       
   - name: "SF"
     type: select
@@ -290,6 +293,7 @@ proxy-groups:
       - "sf_fallback"
       - "sf_loadblance(hashing)"
       - "sf_loadblance(round-robin)"
+  
 
 # p2 proxy     
   - name: "p2_url_test"
@@ -419,7 +423,17 @@ proxy-groups:
     interval: 600
     tolerance: 50
     timeout: 5000 
-
+# relay
+  - name: "relay"
+    type: relay
+    proxies:
+     - font_proxy_Selector
+     - warp(relay)
+    url: http://www.gstatic.com/generate_204
+    layz: true
+    interval: 600
+    tolerance: 50
+    timeout: 5000
 
 rules:
   - DOMAIN-SUFFIX,cursor.sh,DIRECT
