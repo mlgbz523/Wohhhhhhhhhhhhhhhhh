@@ -242,7 +242,7 @@ proxies:
       path: "/?ed=2048"
       headers:
         host: mlgbz.mlgbz511.workers.dev
-    dialer-proxy: font_proxy_Selector
+
 
 proxy-groups:
   - name: "Mode"
@@ -258,11 +258,13 @@ proxy-groups:
       - "P1"
       - "P2"
       - "SF"
+
   - name: "relay"
     type: relay
     proxies:
      - font_proxy_Selector
      - warp(relay)
+
 # selcet box
   - name: "P1"
     type: select
